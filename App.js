@@ -1,20 +1,68 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import Home from './screens/Home';
+import CharacterDetail from './screens/CharacterDetail';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { ApolloClient, ApolloProvider, useQuery, gql } from '@apollo/client';
+import { InMemoryCache } from '@apollo/client/cache/inmemory/inMemoryCache';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+const RootStack = createStackNavigator();
+const MainStack = createStackNavigator();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+const client = new ApolloClient({
+  uri: 'https://rickandmortyapi.com/graphql',
+  cache: new InMemoryCache(),
 });
+
+const MainStackScreen = () => {
+  return (
+    <MainStack.Navigator>
+      <MainStack.Screen
+        name="Home"
+        component={Home}
+        options={{
+          title: 'Rick And Morty ',
+          headerStyle: {
+            backgroundColor: '#25895E',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <MainStack.Screen
+        name="CharacterDetail"
+        component={CharacterDetail}
+        options={({ route }) => ({
+          title: route.params.characters.name,
+          headerStyle: {
+            backgroundColor: '#25895E',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        })}
+      />
+    </MainStack.Navigator>
+  );
+};
+
+const App = () => {
+  return (
+    <ApolloProvider client={client}>
+      <NavigationContainer>
+        <RootStack.Navigator>
+          <RootStack.Screen
+            name="Main"
+            component={MainStackScreen}
+            options={{ headerShown: false }}
+          />
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </ApolloProvider>
+  );
+};
+
+export default App;
